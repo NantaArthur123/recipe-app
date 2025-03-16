@@ -1,21 +1,64 @@
+/* globals.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Midnight Chocolate (default) */
+  --background: #1d1d1d; /*Main color*/
+  --background-200: #262626; /*Lighter color*/
+  --background-300: #54423d;
+  --primary: #6b3b2e;
+  --primary-200: #9b6657;
+  --primary-300: #ffc5b4;
+  --accent: #a66f5a;
+  --accent-200: #ffffe9;
+  --text-title: #deff92;
+  --text: #ffffff;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+[data-theme="soda-splash"] {
+  --background: #00a6eb;
+  --background-200: #009ce1;
+  --background-300: #0077b8;
+  --primary: #f9a825;
+  --primary-200: #d78c00;
+  --primary-300: #8b4d00;
+  --accent: #ff3d00;
+  --accent-200: #ffdf99;
+  --text-title: #f6ff72;
+  --text: #ffffff;
+}
+
+[data-theme="autumn-caramel"] {
+  --background: #f2e9e1;
+  --background-200: #e8dfd7;
+  --background-300: #bfb7af;
+  --primary: #d9a871;
+  --primary-200: #ba8c56;
+  --primary-300: #744d1a;
+  --accent: #a05a2c;
+  --accent-200: #ffeab5;
+  --text-title: #7b6052;
+  --text: #4e3629;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
+  color: var(--text);
+  background-color: var(--background-200);
   font-family: Arial, Helvetica, sans-serif;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Optional utility classes */
+.text-title {
+  color: var(--text-title);
+}
+
+.bg-primary-200 {
+  background-color: var(--primary-200);
+}
+
+.bg-accent-200 {
+  background-color: var(--accent-200);
 }

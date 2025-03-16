@@ -1,0 +1,39 @@
+{
+  "common": {
+    "404": "Laman tidak dapat ditemukan",
+    "web_title": "JamuDB",
+    "web_description": "Find the best recipes."
+  },
+  "messages": {
+    "portion_size": "Portion Size",
+    "optional": "Optional",
+    "search_recipe": "Search recipes..."
+  },
+  "title": {
+    "level1": "Taste Tester",
+    "level2": "Kitchen Newbie",
+    "level3": "Recipe Rookie",
+    "level4": "Food Fanatic",
+    "level5": "Flavor Explorer",
+    "level6": "Culinary Adventurer",
+    "level7": "Sous Chef",
+    "level8": "Master Mixer",
+    "level9": "Seasoned Cook",
+    "level10": "Recipe Guru",
+    "level11": "Gourmet Genius",
+    "level12": "Culinary Creator",
+    "level13": "Flavor Maestro",
+    "level14": "Kitchen Virtuoso",
+    "level15": "Food Artisan",
+    "level16": "Recipe Innovator",
+    "level17": "Culinary Visionary",
+    "level18": "Taste Architect",
+    "level19": "Master Chef",
+    "level20": "Culinary Legend",
+    "level21": "Flavor Pioneer",
+    "level22": "Kitchen Icon",
+    "level23": "Recipe Royalty",
+    "level24": "Culinary Emperor",
+    "level25": "The Ultimate Foodie"
+  }
+}
