@@ -1,0 +1,384 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/**
+ * General Database for general data
+ * this ensure we have separated database for:
+ * 1. RecipeApp
+ * 2. MangaApp
+ * 3. NovelAPP
+ */
+
+enum Role {
+  USER
+  MODERATOR
+  ADMIN
+}
+
+model User {
+  id            String    @id @default(uuid()) // Test using UUID instead of increment id
+  username      String    @unique
+  email         String    @unique
+  passwordHash  String // Prisma don't have hashes? idk but for now let's just pit this in here
+  role          Role      @default(USER) // Added role field
+  displayName   String?   @default(dbgenerated("username")) // Default to username
+  registerDate  DateTime  @default(now())
+  updatedDate   DateTime  @updatedAt
+  lastLogin     DateTime?
+  banned        Boolean   @default(false)
+  oauthProvider String?
+  oauthId       String?
+
+  // Relations
+  achievements   User_Achievement[]
+  posts          Post[]
+  userPerk       User_Perk?
+  likes          User_Like[]
+  comments       Comment[]
+  commentUpvotes Comment_Upvote[]
+  bookmarks      Bookmark[]
+  followers      User_Follow[]      @relation("UserFollowers")
+  following      User_Follow[]      @relation("UserFollowing")
+
+  // Constraint to ensure unique OAuth accounts
+  @@unique([oauthProvider, oauthId], name: "oauth_identifier")
+}
+
+model Achievement {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String
+  req_post    Int? // Number of posts required, if applicable
+  req_likes   Int? // Number of likes required, if applicable
+  icon_url    String? // URL to achievement icon
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  userAchievements User_Achievement[]
+}
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String?  @db.Text
+  type      Int // 1 Recipe 2 Manga 3 Novel
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  published Boolean  @default(true)
+
+  // Relations
+  user_id            String
+  user               User                 @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  likes              User_Like[]
+  recipeIngredients  Recipe_Ingredient[]
+  recipeInstructions Recipe_Instruction[]
+  manga              Manga?
+  novel              Novel?
+  comments           Comment[]
+  tags               Post_Tag[]
+  bookmarks          Bookmark[]
+
+  // Extra fields for specific post types
+  manga_chapter Int? // For manga posts
+  novel_chapter Int? // For novel posts
+
+  @@index([user_id])
+  @@index([type])
+}
+
+model Tag {
+  id    Int        @id @default(autoincrement())
+  name  String     @unique
+  posts Post_Tag[]
+}
+
+model Post_Tag {
+  post_id Int
+  tag_id  Int
+
+  post Post @relation(fields: [post_id], references: [id], onDelete: Cascade)
+  tag  Tag  @relation(fields: [tag_id], references: [id], onDelete: Cascade)
+
+  @@id([post_id, tag_id]) // Composite Primary Key
+}
+
+model User_Perk {
+  id             Int       @id @default(autoincrement())
+  user_id        String    @unique
+  experience     Int       @default(0)
+  level          Int       @default(1)
+  points         Int       @default(0)
+  lastRewardDate DateTime?
+
+  // Relations
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model User_Like {
+  id        Int      @id @default(autoincrement())
+  user_id   String
+  post_id   Int
+  createdAt DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [post_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, post_id])
+  @@index([user_id])
+  @@index([post_id])
+}
+
+model User_Achievement {
+  id             Int      @id @default(autoincrement())
+  user_id        String
+  achievement_id Int
+  receive_date   DateTime @default(now())
+
+  // Relations
+  user        User        @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  achievement Achievement @relation(fields: [achievement_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, achievement_id])
+  @@index([user_id])
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  post_id   Int
+  user_id   String
+  parent_id Int? // Allows nested replies (NULL if top-level)
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  post    Post             @relation(fields: [post_id], references: [id], onDelete: Cascade)
+  user    User             @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  parent  Comment?         @relation("CommentReplies", fields: [parent_id], references: [id], onDelete: SetNull)
+  replies Comment[]        @relation("CommentReplies")
+  upvotes Comment_Upvote[]
+
+  @@index([post_id])
+  @@index([user_id])
+  @@index([parent_id])
+}
+
+model Comment_Upvote {
+  id         Int      @id @default(autoincrement())
+  user_id    String
+  comment_id Int
+  createdAt  DateTime @default(now())
+
+  // Relations
+  user    User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  comment Comment @relation(fields: [comment_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, comment_id])
+  @@index([comment_id])
+  @@index([user_id])
+}
+
+model Bookmark {
+  id        Int      @id @default(autoincrement())
+  user_id   String
+  post_id   Int
+  createdAt DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [post_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, post_id])
+  @@index([user_id])
+  @@index([post_id])
+}
+
+model User_Follow {
+  id           Int      @id @default(autoincrement())
+  follower_id  String
+  following_id String
+  createdAt    DateTime @default(now())
+
+  // Relations
+  followerUser  User @relation("UserFollowers", fields: [follower_id], references: [id], onDelete: Cascade)
+  followingUser User @relation("UserFollowing", fields: [following_id], references: [id], onDelete: Cascade)
+
+  @@unique([follower_id, following_id])
+  @@index([follower_id])
+  @@index([following_id])
+}
+
+/**
+ * RECIPE APP
+ */
+
+model Recipe_Ingredient {
+  id             Int     @id @default(autoincrement())
+  post_id        Int
+  ingredient_id  Int
+  measurement_id Int
+  quantity       Float // Changed from Int to Float for more precise measurements
+  isOptional     Boolean @default(false)
+  notes          String?
+
+  // Relations
+  post        Post        @relation(fields: [post_id], references: [id], onDelete: Cascade)
+  ingredient  Ingredient  @relation(fields: [ingredient_id], references: [id])
+  measurement Measurement @relation(fields: [measurement_id], references: [id])
+
+  @@index([post_id])
+  @@index([ingredient_id])
+  @@index([measurement_id])
+}
+
+model Recipe_Instruction {
+  id             Int    @id @default(autoincrement())
+  post_id        Int
+  step_number    Int
+  instruction    String @db.Text
+  estimated_time Int? // Time in minutes
+
+  // Relations
+  post Post @relation(fields: [post_id], references: [id], onDelete: Cascade)
+
+  @@index([post_id])
+}
+
+model Measurement {
+  id               Int     @id @default(autoincrement())
+  name             String  @unique
+  abbreviation     String?
+  metric           Boolean @default(true) // Changed Int to Boolean
+  isLiquid         Boolean @default(false)
+  conversion_ratio Float? // For conversion between imperial and metric
+
+  // Relations
+  recipeIngredients Recipe_Ingredient[]
+}
+
+model Ingredient {
+  id                Int     @id @default(autoincrement())
+  name              String  @unique
+  category          String?
+  calories_per_100g Float?
+  image_url         String?
+
+  // Relations
+  recipeIngredients Recipe_Ingredient[]
+}
+
+/**
+ * MANGA APP
+ */
+
+model Manga {
+  id          Int     @id @default(autoincrement())
+  post_id     Int     @unique
+  title       String
+  author      String
+  artist      String?
+  description String? @db.Text
+  status      String // ongoing, completed, hiatus
+  cover_image String?
+
+  // Relations
+  post     Post            @relation(fields: [post_id], references: [id], onDelete: Cascade)
+  chapters Manga_Chapter[]
+  genres   Manga_Genre[]
+}
+
+model Manga_Chapter {
+  id             Int      @id @default(autoincrement())
+  manga_id       Int
+  chapter_number Float // For chapters like 1.5
+  title          String?
+  release_date   DateTime @default(now())
+  page_count     Int // Renamed from pages to avoid conflict
+
+  // Relations
+  manga       Manga        @relation(fields: [manga_id], references: [id], onDelete: Cascade)
+  manga_pages Manga_Page[] // Renamed from pages to manga_pages
+
+  @@index([manga_id])
+}
+
+model Manga_Page {
+  id          Int    @id @default(autoincrement())
+  chapter_id  Int
+  page_number Int
+  image_url   String
+
+  // Relations
+  chapter Manga_Chapter @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
+
+  @@index([chapter_id])
+}
+
+model Manga_Genre {
+  id       Int    @id @default(autoincrement())
+  manga_id Int
+  genre    String
+
+  // Relations
+  manga Manga @relation(fields: [manga_id], references: [id], onDelete: Cascade)
+
+  @@unique([manga_id, genre])
+  @@index([manga_id])
+}
+
+/**
+ * NOVEL APP
+ */
+
+model Novel {
+  id          Int     @id @default(autoincrement())
+  post_id     Int     @unique
+  title       String
+  author      String
+  description String? @db.Text
+  status      String // ongoing, completed, hiatus
+  cover_image String?
+
+  // Relations
+  post     Post            @relation(fields: [post_id], references: [id], onDelete: Cascade)
+  chapters Novel_Chapter[]
+  genres   Novel_Genre[]
+}
+
+model Novel_Chapter {
+  id             Int      @id @default(autoincrement())
+  novel_id       Int
+  chapter_number Float // For chapters like 1.5
+  title          String?
+  content        String   @db.Text
+  release_date   DateTime @default(now())
+  word_count     Int?
+
+  // Relations
+  novel Novel @relation(fields: [novel_id], references: [id], onDelete: Cascade)
+
+  @@index([novel_id])
+}
+
+model Novel_Genre {
+  id       Int    @id @default(autoincrement())
+  novel_id Int
+  genre    String
+
+  // Relations
+  novel Novel @relation(fields: [novel_id], references: [id], onDelete: Cascade)
+
+  @@unique([novel_id, genre])
+  @@index([novel_id])
+}

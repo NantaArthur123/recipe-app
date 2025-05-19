@@ -1,19 +1,13 @@
 "use client";
 
-import { LangSwitcher } from "@/app/components/langswitcher";
-import { RankBadge } from "@/app/components/rankbadge";
-import { ThemeSwitcher } from "@/app/components/themeswitcher";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import {
-  IoMdAdd,
-  IoMdHome,
-  IoMdLogIn,
-  IoMdSearch,
-  IoMdSettings,
-} from "react-icons/io";
+import { IoMdAdd, IoMdHome, IoMdSearch } from "react-icons/io";
+import { IoPersonCircle } from "react-icons/io5";
 // Lang
 import { useTranslations } from "next-intl";
+import { FaSquarePlus } from "react-icons/fa6";
+import { GiBowlOfRice } from "react-icons/gi";
 
 // Test API
 async function testInsertUser() {
@@ -64,8 +58,9 @@ export default function Header() {
 
   return (
     <>
+      {/* PC View */}
       {!isMobile && (
-        <header className="flex items-center justify-between p-4 bg-background">
+        <header className="flex items-center justify-between p-2 bg-background">
           <div className="flex-shrink-0 mr-4">
             <a href="/" className="text-2xl font-bold text-text-title">
               {t("global.common.web_title")}
@@ -89,16 +84,24 @@ export default function Header() {
 
           {/* Right section with switchers */}
           <div className="flex-shrink-0 flex justify-end items-center space-x-2 ml-4">
-            <LangSwitcher />
-            <ThemeSwitcher />
-            <RankBadge />
+            {/* <LangSwitcher /> */}
+            {/* <ThemeSwitcher /> */}
+            {/* <RankBadge /> */}
+            <Link
+              href=""
+              className="flex flex-row items-center border"
+              onClick={testInsertUser}
+            >
+              <IoMdAdd className="w-6 h-6" />
+              <span className="text-xxs">New Recipe</span>
+            </Link>
           </div>
         </header>
       )}
 
       {/* Mobile Navbar */}
       {isMobile && (
-        <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-background-300 flex justify-around items-center py-3">
+        <nav className="fixed bottom-0 left-0 right-0 bg-background  flex justify-around items-center py-3">
           <Link href="/" className="flex flex-col items-center">
             <IoMdHome className="w-6 h-6" />
             <span className="text-xxs">Home</span>
@@ -112,15 +115,15 @@ export default function Header() {
             className="flex flex-col items-center"
             onClick={testInsertUser}
           >
-            <IoMdAdd className="w-6 h-6" />
+            <FaSquarePlus className="w-6 h-6" />
             <span className="text-xxs">Add</span>
           </Link>
           <Link href="/settings" className="flex flex-col items-center">
-            <IoMdSettings className="w-6 h-6" />
-            <span className="text-xxs">Settings</span>
+            <GiBowlOfRice className="w-6 h-6" />
+            <span className="text-xxs">Category</span>
           </Link>
           <Link href="/login" className="flex flex-col items-center">
-            <IoMdLogIn className="w-6 h-6" />
+            <IoPersonCircle className="w-6 h-6" />
             <span className="text-xxs">Login</span>
           </Link>
         </nav>

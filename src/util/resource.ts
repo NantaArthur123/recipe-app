@@ -42,8 +42,6 @@ export const convertTemperature = (value: number, isCelsius: boolean) =>
 
 
 
-
-
 /**
  * Adjust ingredient amounts based on portion size
  * @param baseIngredients array of ingredients
