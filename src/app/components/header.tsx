@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { IoMdAdd, IoMdHome, IoMdSearch } from "react-icons/io";
+import { IoMdHome, IoMdSearch } from "react-icons/io";
 import { IoPersonCircle } from "react-icons/io5";
 // Lang
 import { useTranslations } from "next-intl";
@@ -92,8 +92,8 @@ export default function Header() {
               className="flex flex-row items-center border"
               onClick={testInsertUser}
             >
-              <IoMdAdd className="w-6 h-6" />
-              <span className="text-xxs">New Recipe</span>
+              <FaSquarePlus className="w-6 h-6" />
+              <span className="text-xxs">{t("global.common.add")}</span>
             </Link>
           </div>
         </header>
@@ -101,14 +101,14 @@ export default function Header() {
 
       {/* Mobile Navbar */}
       {isMobile && (
-        <nav className="fixed bottom-0 left-0 right-0 bg-background  flex justify-around items-center py-3">
+        <nav className="fixed bottom-0 left-0 right-0 bg-background  flex justify-around items-center py-3 rounded-t-3xl mx-2">
           <Link href="/" className="flex flex-col items-center">
             <IoMdHome className="w-6 h-6" />
-            <span className="text-xxs">Home</span>
+            <span className="text-xxs">{t("global.common.home")}</span>
           </Link>
           <Link href="/search" className="flex flex-col items-center">
             <IoMdSearch className="w-6 h-6" />
-            <span className="text-xxs">Search</span>
+            <span className="text-xxs">{t("global.common.search")}</span>
           </Link>
           <Link
             href=""
@@ -116,15 +116,15 @@ export default function Header() {
             onClick={testInsertUser}
           >
             <FaSquarePlus className="w-6 h-6" />
-            <span className="text-xxs">Add</span>
+            <span className="text-xxs">{t("global.common.add")}</span>
           </Link>
           <Link href="/settings" className="flex flex-col items-center">
             <GiBowlOfRice className="w-6 h-6" />
-            <span className="text-xxs">Category</span>
+            <span className="text-xxs">{t("global.common.category")}</span>
           </Link>
           <Link href="/login" className="flex flex-col items-center">
             <IoPersonCircle className="w-6 h-6" />
-            <span className="text-xxs">Login</span>
+            <span className="text-xxs">{t("global.common.login")}</span>
           </Link>
         </nav>
       )}

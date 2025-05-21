@@ -2,7 +2,12 @@
   "common": {
     "404": "Laman tidak dapat ditemukan",
     "web_title": "JamuDB",
-    "web_description": "Find the best recipes."
+    "web_description": "Find the best recipes.",
+    "home": "Home",
+    "search": "Search",
+    "add": "Add",
+    "category": "Category",
+    "login": "Login"
   },
   "messages": {
     "portion_size": "Portion Size",
